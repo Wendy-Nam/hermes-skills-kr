@@ -12,14 +12,15 @@ platforms: [linux, macos, windows]
 
 - **필수**: `GEMINI_API_KEY` — [Google AI Studio](https://aistudio.google.com/apikey) 무료 키. 환경변수 또는 Hermes 데이터 폴더(`$HERMES_HOME`, Docker 기본 `/opt/data`)의 `.env`에 한 줄. 스크립트가 직접 읽으므로 재시작 불필요.
 - 선택: `APIFY_TOKEN` — Gemini가 못 보는 영상(비공개 직전·일부 지역 제한 등)의 자막 폴백. 영상당 약 $0.005, 무료 플랜 월 $5 크레딧(소진 시 Apify가 멈춤).
-- 선택: `WEBSHARE_PROXY_USERNAME`/`WEBSHARE_PROXY_PASSWORD`(residential) 또는 `HERMES_SCRAPER_PROXY` — 있으면 자막 API를 맨 앞에서 3초 시도(정확한 인용용).
+- 선택: `WEBSHARE_PROXY_USERNAME`/`WEBSHARE_PROXY_PASSWORD`(residential) 또는 `HERMES_SCRAPER_PROXY` — 있으면 자막 API를 맨 앞에서 3초 시도(정확한 인용용). **`.env`에만 적어도 동작한다**(하위 프로세스에 넘겨준다).
+- 선택: 자막 API 경로를 쓰려면 `pip install youtube-transcript-api` (없으면 그 경로만 건너뛰고 나머지 폴백은 그대로 동작 — stderr에 알림).
 
 ## 사용 — `yt.py` 하나로
 
 ```bash
 python3 SKILL_DIR/scripts/yt.py "URL"                                   # ① Gemini가 영상을 직접 봄 → 실패 시 ② Apify 자막→Gemini 텍스트 정리 → 그것도 실패면 자막 원문
 python3 SKILL_DIR/scripts/yt.py "URL" --prompt "질문 / 챕터 / 스레드 형식"   # 정리 형식·질문 (기본: 논지 중심 정리)
-python3 SKILL_DIR/scripts/yt.py "URL" --raw                              # 자막 원문(타임스탬프)만 — 정확한 인용용
+python3 SKILL_DIR/scripts/yt.py "URL" --raw                              # 자막 원문(타임스탬프)만 — 정확한 인용용. 자막을 못 얻으면 요약으로 대체하지 않고 실패한다
 python3 SKILL_DIR/scripts/yt.py "URL" --apify-first                      # 자막 기반 정리를 우선(발화 인용 정밀)
 python3 SKILL_DIR/scripts/yt.py "URL" --hq                               # 화면·슬라이드가 중요할 때(1fps·풀해상도, 2배 느림)
 python3 SKILL_DIR/scripts/yt.py "URL" --fast                             # 속도 우선(lite 모델)

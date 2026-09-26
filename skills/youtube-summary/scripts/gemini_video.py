@@ -23,11 +23,12 @@ DEFAULT_PROMPT = (
     "5) 누가 보면 좋은가 — 한 줄.\n"
     "영상에 없는 내용은 만들지 말고, 안 들리거나 애매하면 '불명확'이라고 표시해. 전체 2,000~3,500자.")
 _YT = re.compile(r"^https?://(www\.|m\.|music\.)?(youtube\.com/(watch\?v=|shorts/|live/)|youtu\.be/)[A-Za-z0-9_-]{11}")
-_TS = re.compile(r"\[(?:(\d{1,2}):)?(\d{1,2}):(\d{2})(?:\s*[-–~]\s*(?:\d{1,2}:)?\d{1,2}:\d{2})?\](?!\()")   # [mm:ss], [h:mm:ss], 구간 [a - b]는 시작 시점
+_TS = re.compile(r"\[(?:(\d{1,2}):)?(\d{1,3}):(\d{2})(?:\s*[-–~]\s*(?:\d{1,2}:)?\d{1,3}:\d{2})?\](?!\()")   # [mm:ss], [h:mm:ss], 구간 [a - b]는 시작 시점. 분은 3자리까지(100분 이상 영상)
 
 
 def _vid(u):
-    m = re.search(r"(?:v=|youtu\.be/|shorts/|live/)([A-Za-z0-9_-]{11})", u)
+    # embed/도 포함 — gemini_video.py의 _YT(허용 URL 검사)와 같은 목록이어야 한다
+    m = re.search(r"(?:v=|youtu\.be/|shorts/|live/|embed/)([A-Za-z0-9_-]{11})", u)
     return m.group(1) if m else ""
 
 
@@ -45,9 +46,10 @@ def _key():
     if k:
         return k
     try:
-        for ln in open(os.path.join(DATA, ".env"), encoding="utf-8"):
-            if ln.startswith("GEMINI_API_KEY="):
-                return ln.split("=", 1)[1].strip().strip('"').strip("'")
+        with open(os.path.join(DATA, ".env"), encoding="utf-8") as f:
+            for ln in f:
+                if ln.startswith("GEMINI_API_KEY="):
+                    return ln.split("=", 1)[1].strip().strip('"').strip("'")
     except OSError:
         pass
     return ""
@@ -84,7 +86,9 @@ def main(argv):
     gen = {"temperature": 0.3}
     if not think: gen["thinkingConfig"] = {"thinkingBudget": 0}   # 실측: 텍스트 16s→6s, 사고 4.8k토큰 후 빈 응답(MALFORMED) 회피
     if text_file:   # 자막 텍스트 모드: 영상 대신 원문을 붙인다 (타임스탬프 [mm:ss]가 줄마다 있어 인용 가능)
-        try: tx = open(text_file, encoding="utf-8").read()[:400_000]
+        try:
+            with open(text_file, encoding="utf-8") as f:
+                tx = f.read()[:400_000]
         except OSError as e: _die(f"자막 파일 못 읽음: {e}", 2)
         parts = [{"text": prompt + "\n\n=== 아래는 이 영상의 자막 원문(자동생성이라 오탈자 있음, 줄 앞 [mm:ss]는 시각) ===\n" + tx}]
     else:

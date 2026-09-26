@@ -15,7 +15,7 @@ Output (JSON):
         "language": "en",
         "segments": [{"text": "...", "start": 0.0, "duration": 2.5}, ...],
         "full_text": "complete transcript as plain text",
-        "timestamped_text": "00:00 first line\n00:05 second line\n..."
+        "timestamped_text": "[00:00] first line\n[00:05] second line\n..."
     }
 
 Install dependency:  uv pip install youtube-transcript-api
@@ -49,7 +49,13 @@ def format_timestamp(seconds: float) -> str:
     m, s = divmod(remainder, 60)
     if h > 0:
         return f"{h}:{m:02d}:{s:02d}"
-    return f"{m}:{s:02d}"
+    return f"{m:02d}:{s:02d}"      # 분을 0으로 채운다 — Apify 경로·링크 정규식·출력 형식 문서와 같은 표기
+
+
+def format_tag(seconds: float) -> str:
+    """같은 값을 대괄호 표기로 — 자막 경로 3종(자막 API/Apify/프롬프트)이 공유하는 표기.
+    분이 100을 넘어도 [1:40:00]이 되므로 링크 변환 정규식과 맞는다."""
+    return f"[{format_timestamp(seconds)}]"
 
 
 def fetch_transcript(video_id: str, languages: list = None):
@@ -123,7 +129,7 @@ def main():
 
     full_text = " ".join(seg["text"] for seg in segments)
     timestamped = "\n".join(
-        f"{format_timestamp(seg['start'])} {seg['text']}" for seg in segments
+        f"{format_tag(seg['start'])} {seg['text']}" for seg in segments
     )
 
     if args.text_only:
