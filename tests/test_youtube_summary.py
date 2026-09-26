@@ -52,5 +52,32 @@ class Yt(unittest.TestCase):
         self.assertNotIn("Traceback", r.stderr)
 
 
+
+class Linkify(unittest.TestCase):
+    def setUp(self):
+        spec = importlib.util.spec_from_file_location("gv2", SCRIPTS / "gemini_video.py")
+        self.gv = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.gv)
+
+    def test_mm_ss_and_h_mm_ss_become_links_without_previews(self):
+        out = self.gv._linkify("요지 [03:12] 그리고 [1:02:03].", "dQw4w9WgXcQ")
+        self.assertEqual(out, "요지 [03:12](<https://youtu.be/dQw4w9WgXcQ?t=192>) "
+                              "그리고 [1:02:03](<https://youtu.be/dQw4w9WgXcQ?t=3723>).")
+
+    def test_ranges_link_to_their_start(self):   # real Gemini output, 2026-09-26
+        out = self.gv._linkify("설명 [00:05 - 00:14] 끝 [1:00–1:30]", "jNQXAC9IVRw")
+        self.assertEqual(out, "설명 [00:05 - 00:14](<https://youtu.be/jNQXAC9IVRw?t=5>) "
+                              "끝 [1:00–1:30](<https://youtu.be/jNQXAC9IVRw?t=60>)")
+
+    def test_already_linked_and_non_timestamps_untouched(self):
+        s = "[03:12](https://x) [주의] [12:3] [ab:cd]"
+        self.assertEqual(self.gv._linkify(s, "dQw4w9WgXcQ"), s)
+
+    def test_video_id_from_url_forms(self):
+        for u in ("https://www.youtube.com/watch?v=dQw4w9WgXcQ", "https://youtu.be/dQw4w9WgXcQ",
+                  "https://www.youtube.com/shorts/dQw4w9WgXcQ", "https://www.youtube.com/live/dQw4w9WgXcQ"):
+            self.assertEqual(self.gv._vid(u), "dQw4w9WgXcQ")
+
+
 if __name__ == "__main__":
     unittest.main()

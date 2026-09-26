@@ -23,6 +23,21 @@ DEFAULT_PROMPT = (
     "5) 누가 보면 좋은가 — 한 줄.\n"
     "영상에 없는 내용은 만들지 말고, 안 들리거나 애매하면 '불명확'이라고 표시해. 전체 2,000~3,500자.")
 _YT = re.compile(r"^https?://(www\.|m\.|music\.)?(youtube\.com/(watch\?v=|shorts/|live/)|youtu\.be/)[A-Za-z0-9_-]{11}")
+_TS = re.compile(r"\[(?:(\d{1,2}):)?(\d{1,2}):(\d{2})(?:\s*[-–~]\s*(?:\d{1,2}:)?\d{1,2}:\d{2})?\](?!\()")   # [mm:ss], [h:mm:ss], 구간 [a - b]는 시작 시점
+
+
+def _vid(u):
+    m = re.search(r"(?:v=|youtu\.be/|shorts/|live/)([A-Za-z0-9_-]{11})", u)
+    return m.group(1) if m else ""
+
+
+def _linkify(text, vid):
+    """[mm:ss]·[h:mm:ss] → 누르면 그 시점부터 재생되는 링크. 초 계산은 모델이 아니라 여기서(결정적).
+    <>로 감싸 디스코드가 링크마다 영상 미리보기를 붙이는 걸 막는다(표준 마크다운 문법)."""
+    def sub(m):
+        sec = int(m.group(1) or 0) * 3600 + int(m.group(2)) * 60 + int(m.group(3))
+        return f"{m.group(0)}(<https://youtu.be/{vid}?t={sec}>)"
+    return _TS.sub(sub, text) if vid else text
 
 
 def _key():
@@ -116,6 +131,7 @@ def main(argv):
         text = "".join(p.get("text", "") for p in d["candidates"][0]["content"]["parts"])
     except (KeyError, IndexError):
         _die("응답에 텍스트 없음(차단/안전필터 가능)", model=model, detail=json.dumps(d, ensure_ascii=False)[:600])
+    text = _linkify(text, _vid(url))
     usage = d.get("usageMetadata", {})
     if as_json:
         print(json.dumps({"url": url, "model": model, "text": text, "usage": usage}, ensure_ascii=False))
