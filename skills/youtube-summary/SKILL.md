@@ -10,7 +10,7 @@ platforms: [linux, macos, windows]
 
 ## 준비물
 
-- **필수**: `GEMINI_API_KEY` — [Google AI Studio](https://aistudio.google.com/apikey) 무료 키. 환경변수 또는 `$HERMES_HOME/.env`(Docker 기본 `/opt/data/.env`, 일반 설치 `~/.hermes/.env`)에 한 줄. 스크립트가 직접 읽으므로 재시작 불필요.
+- **필수**: `GEMINI_API_KEY` — [Google AI Studio](https://aistudio.google.com/apikey) 무료 키. 환경변수 또는 Hermes 데이터 폴더(`$HERMES_HOME`, Docker 기본 `/opt/data`)의 `.env`에 한 줄. 스크립트가 직접 읽으므로 재시작 불필요.
 - 선택: `APIFY_TOKEN` — Gemini가 못 보는 영상(비공개 직전·일부 지역 제한 등)의 자막 폴백. 영상당 약 $0.005, 무료 플랜 월 $5 크레딧(소진 시 Apify가 멈춤).
 - 선택: `WEBSHARE_PROXY_USERNAME`/`WEBSHARE_PROXY_PASSWORD`(residential) 또는 `HERMES_SCRAPER_PROXY` — 있으면 자막 API를 맨 앞에서 3초 시도(정확한 인용용).
 

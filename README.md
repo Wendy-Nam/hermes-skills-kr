@@ -13,17 +13,15 @@
 
 ### 스킬 하나만 (추천)
 
-이 레포를 Hermes의 스킬 출처(tap)로 한 번 등록하고, 원하는 스킬만 설치합니다. 스크립트까지 폴더째 설치됩니다.
+레포 경로까지 포함한 **전체 이름**으로 설치합니다. 스크립트까지 폴더째, 커밋 고정으로 설치됩니다.
 
 ```bash
-hermes skills tap add Wendy-Nam/hermes-skills-kr
+hermes skills install Wendy-Nam/hermes-skills-kr/youtube-summary
 ```
 
-```bash
-hermes skills install youtube-summary
-```
+> ⚠️ `hermes skills install youtube-summary`처럼 이름만 쓰면 **다른 사람이 올린 같은 이름의 스킬**이 설치될 수 있습니다. 꼭 전체 이름을 쓰세요.
 
-설치 후 새 대화부터 적용됩니다. 업데이트는 `hermes skills update`.
+설치 후 새 대화부터 적용됩니다. 설치 전 Hermes 보안 검사(skills-guard)를 통과하도록 관리하고 있습니다.
 
 ### 직접 복사
 
@@ -35,7 +33,7 @@ tap을 쓰지 않거나 Claude Code 같은 다른 에이전트에서 쓸 때는 
 
 ## 키 넣기
 
-키는 채팅창에 붙여넣지 마세요. Hermes의 `.env`(Docker: `/opt/data/.env`, 일반 설치: `~/.hermes/.env`)에 한 줄 추가하면 스크립트가 바로 읽습니다.
+키는 채팅창에 붙여넣지 마세요. Hermes 데이터 폴더(`$HERMES_HOME` — Docker는 `/opt/data`, 일반 설치는 홈의 `.hermes` 폴더)의 `.env`에 한 줄 추가하면 스크립트가 바로 읽습니다.
 
 ```
 GEMINI_API_KEY=발급받은키
