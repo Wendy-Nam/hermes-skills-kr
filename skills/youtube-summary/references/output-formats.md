@@ -1,56 +1,57 @@
-# Output Format Examples
+# 출력 형식
 
-## Chapters
+형식은 `yt.py "URL" --prompt "..."`로 요청한다. 아래 프롬프트를 그대로 쓰면 된다.
+시점은 항상 `[mm:ss]`(1시간 넘으면 `[h:mm:ss]`)로 쓰게 한다 — 스크립트가 누르면 그 시점부터 재생되는 링크로 바꾼다.
+예시의 대괄호 안 내용은 자리표시일 뿐이다. 영상에 없는 내용을 예시처럼 지어내지 않는다.
 
-```
-00:00 Introduction
-02:15 Background and motivation
-05:30 Main approach
-12:45 Results and evaluation
-18:20 Limitations and future work
-21:00 Q&A
-```
+## 요약 (기본값 — `--prompt` 없이 실행)
 
-## Summary
+요지 2~3문장 → 핵심 포인트 6~12개(각각 '주장 → 근거 → 함의', 끝에 `[mm:ss]`) → 한계·반론 → 기억할 문장 2~3개 → 누가 보면 좋은가.
 
-A 5-10 sentence overview covering the video's main points, key arguments, and conclusions. Written in third person, present tense.
-
-## Chapter Summaries
+## 챕터
 
 ```
-## 00:00 Introduction (2 min)
-The speaker introduces the topic of X and explains why it matters for Y.
-
-## 02:15 Background (3 min)
-A review of prior work in the field, covering approaches A, B, and C.
+--prompt "주제가 바뀌는 지점마다 [mm:ss] 제목 형식으로 챕터 목록을 만들어줘. 제목은 한국어 15자 이내."
 ```
 
-## Thread (Twitter/X)
-
 ```
-1/ Just watched an incredible talk on [topic]. Here are the key takeaways: 🧵
-
-2/ First insight: [point]. This matters because [reason].
-
-3/ The surprising part: [unexpected finding]. Most people assume [common belief], but the data shows otherwise.
-
-4/ Practical takeaway: [actionable advice].
-
-5/ Full video: [URL]
+[00:00] 도입과 문제 제기
+[02:15] 배경
+[05:30] 핵심 방법
 ```
 
-## Blog Post
-
-Full article with:
-- Title
-- Introduction paragraph
-- H2 sections for each major topic
-- Key quotes (with timestamps)
-- Conclusion / takeaways
-
-## Quotes
+## 챕터별 요약
 
 ```
-"The most important thing is not the model size, but the data quality." — 05:32
-"We found that scaling past 70B parameters gave diminishing returns." — 12:18
+--prompt "챕터마다 '### [mm:ss] 제목' 한 줄과 2~3문장 요약을 한국어로 써줘."
 ```
+
+## 스레드 (X)
+
+```
+--prompt "X 스레드 5~7개로. 각 글 280자 이하, 1번은 영상의 핵심 주장, 마지막은 원본 링크. 근거가 되는 글에는 [mm:ss] 표시."
+```
+
+## 블로그 글
+
+```
+--prompt "한국어 블로그 글로: 제목, 도입 한 문단, 주제별 소제목(##) 섹션, 인용은 [mm:ss] 포함, 마지막에 핵심 정리 3줄."
+```
+
+## 인용 모음
+
+```
+--prompt "화자의 실제 발언 중 인용할 만한 문장 5개를 원문 그대로, 각각 [mm:ss]와 한 줄 맥락을 붙여서."
+```
+
+```
+"[화자의 실제 문장]" [05:32] — [이 말이 나온 맥락 한 줄]
+```
+
+## 특정 구간 확인
+
+```
+--prompt "[12:00]~[15:00] 구간에서 화자가 실제로 한 말을 가능한 한 원문에 가깝게 옮겨줘."
+```
+
+요약에 의심 가는 대목이 있을 때 이걸로 재확인한다.
